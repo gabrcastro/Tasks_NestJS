@@ -2,27 +2,38 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { v4 as uuid } from 'uuid';
+import { hashSync } from 'bcrypt';
 
 @Injectable()
 export class UserRepository {
   private users: User[] = [];
-  private currentId: number = 0;
 
   findAll(): User[] {
     return this.users;
   }
 
-  findById(id: number): User {
+  findById(id: string): User {
     return this.users.find((user) => user.id === id);
   }
 
+  findByEmail(email: string): User {
+    return this.users.find((user) => user.email === email);
+  }
+
   create(user: CreateUserDto): User {
-    const newUser: User = new User(this.currentId++, user.fullName, user.email);
+    const newUser: User = {
+      id: uuid(),
+      fullName: user.fullName,
+      email: user.email,
+      password: hashSync(user.password, 10),
+    };
+
     this.users.push(newUser);
     return newUser;
   }
 
-  update(id: number, user: UpdateUserDto): User {
+  update(id: string, user: UpdateUserDto): User {
     const index = this.users.findIndex((u) => u.id === id);
     if (index === -1 || !index)
       throw new HttpException(
@@ -39,7 +50,7 @@ export class UserRepository {
     return updatedUser;
   }
 
-  delete(id: number): User[] {
+  delete(id: string): User[] {
     const index = this.users.findIndex((u) => u.id === id);
     if (index === -1 || !index)
       throw new HttpException(

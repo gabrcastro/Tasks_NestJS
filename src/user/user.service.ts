@@ -15,15 +15,19 @@ export class UserService {
     return this.userRepository.findAll();
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.userRepository.findById(id);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  findByEmail(email: string) {
+    return this.userRepository.findByEmail(email);
+  }
+
+  update(id: string, updateUserDto: UpdateUserDto) {
     return this.userRepository.update(id, updateUserDto);
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.userRepository.delete(id);
   }
 }
