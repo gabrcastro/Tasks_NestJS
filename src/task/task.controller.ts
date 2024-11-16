@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -16,30 +18,29 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Controller('task')
 export class TaskController {
-  private readonly _taskService: TaskService;
-
-  constructor(taskService: TaskService) {
-    this._taskService = taskService;
-  }
+  constructor(private readonly taskService: TaskService) {}
 
   @Get()
   async get(): Promise<Task[]> {
-    return this._taskService.getAll();
+    return this.taskService.getAll();
   }
 
   @Get('/params')
   async getByParams(@Query() params: GetTaskWithParamsDto): Promise<Task[]> {
-    return this._taskService.getAllParams(params);
+    return this.taskService.getAllParams(params);
   }
 
   @Get('/:id')
   async getById(@Param('id') id: number): Promise<Task> {
-    return this._taskService.getById(id);
+    if (isNaN(id)) {
+      throw new HttpException('ID must be a number', HttpStatus.BAD_REQUEST);
+    }
+    return this.taskService.getById(id);
   }
 
   @Post()
   async create(@Body() task: CreateTaskDto): Promise<Task> {
-    return this._taskService.create(task);
+    return this.taskService.create(task);
   }
 
   @Put('/:id')
@@ -47,11 +48,17 @@ export class TaskController {
     @Param('id') id: number,
     @Body() task: UpdateTaskDto,
   ): Promise<Task> {
-    return this._taskService.update(id, task);
+    if (isNaN(id)) {
+      throw new HttpException('ID must be a number', HttpStatus.BAD_REQUEST);
+    }
+    return this.taskService.update(id, task);
   }
 
   @Delete('/:id')
   async delete(@Param('id') id: number): Promise<Task[]> {
-    return this._taskService.delete(id);
+    if (isNaN(id)) {
+      throw new HttpException('ID must be a number', HttpStatus.BAD_REQUEST);
+    }
+    return this.taskService.delete(id);
   }
 }
