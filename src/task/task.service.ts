@@ -1,26 +1,31 @@
 import {
+  ConflictException,
   HttpException,
   HttpStatus,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { FindByParamsDto, TaskDto } from './task.dto';
+import { GetTaskWithParamsDto } from './dto/get-task-with-params.dto';
+import { Task } from './entities/task.entity';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
 export class TaskService {
   private readonly logger = new Logger(TaskService.name);
-  private tasks: TaskDto[] = [];
+  private tasks: Task[] = [];
+  private currentId = 0;
 
-  getById(id: string): TaskDto {
+  getById(id: number): Task {
     return this.findTaskById(id);
   }
 
-  getAll(): TaskDto[] {
+  getAll(): Task[] {
     return this.tasks;
   }
 
-  getAllParams(params: FindByParamsDto): TaskDto[] {
+  getAllParams(params: GetTaskWithParamsDto): Task[] {
     return this.tasks.filter((task) => {
       const titleMatches = params.title ? task.title === params.title : true;
       const statusMatches = params.status ? task.status == params.status : true;
@@ -29,38 +34,45 @@ export class TaskService {
     });
   }
 
-  create(task: TaskDto): TaskDto {
-    if (this.tasks.some((t) => t.id === task.id)) {
-      throw new HttpException(
-        `Task with ID ${task.id} already exists`,
-        HttpStatus.CONFLICT,
-      );
-    }
+  create(createTaskDto: CreateTaskDto): Task {
+    // if (this.tasks.some((t) => t.id === createTaskDto.id)) {
+    //   throw new ConflictException(`Task with ID ${task.id} already exists`);
+    // }
 
-    this.tasks.push(task);
-    this.logger.log(`Task with ID ${task.id} created`);
-    return task;
+    this.currentId++;
+    const newTask: Task = {
+      ...createTaskDto,
+      id: this.currentId,
+      status: createTaskDto.status,
+    };
+
+    this.tasks.push(newTask);
+    this.logger.log(`Task was created`);
+
+    return newTask;
   }
 
-  update(task: TaskDto): TaskDto {
-    const index = this.findTaskIndexById(task.id);
-
-    this.tasks[index] = { ...this.tasks[index], ...task };
-    return this.tasks[index];
-  }
-
-  delete(id: string): TaskDto[] {
+  update(id: number, task: UpdateTaskDto): Task {
     const index = this.findTaskIndexById(id);
-    console.log(index);
 
-    if (index === -1) throw new NotFoundException(`Task not found`);
+    const updatedTask = {
+      ...this.tasks[index],
+      ...task,
+      expirationDate: new Date(task.expirationDate),
+    };
+    this.tasks[index] = updatedTask;
 
+    return updatedTask;
+  }
+
+  delete(id: number): Task[] {
+    const index = this.findTaskIndexById(id);
     this.tasks.splice(index, 1);
     this.logger.log(`Task with ID ${id} deleted`);
     return this.tasks;
   }
 
-  private findTaskIndexById(id: string): number {
+  private findTaskIndexById(id: number): number {
     const index = this.tasks.findIndex((t) => t.id === id);
     if (index === -1 || !index)
       throw new HttpException(
@@ -70,8 +82,8 @@ export class TaskService {
     return index;
   }
 
-  private findTaskById(id: string): TaskDto {
-    const task = this.tasks.find((t) => t.id === id);
+  private findTaskById(id: number): Task {
+    const task = this.tasks.find((t) => t.id == id);
     if (!task)
       throw new HttpException(
         `Task with ID ${id} not found`,
@@ -79,6 +91,4 @@ export class TaskService {
       );
     return task;
   }
-
-  //   private findTaskByParam(params: FindByParams): TaskDto[] {}
 }
