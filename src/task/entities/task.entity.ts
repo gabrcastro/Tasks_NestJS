@@ -5,14 +5,14 @@ export enum TaskStatus {
 }
 
 export class Task {
-  id: number;
+  id: string;
   title: string;
   description: string;
   status: TaskStatus;
   expirationDate: Date;
 
   constructor(
-    id: number,
+    id: string,
     title: string,
     description: string,
     status: number,

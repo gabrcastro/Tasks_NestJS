@@ -3,8 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
   Put,
@@ -17,8 +15,10 @@ import { GetTaskWithParamsDto } from './dto/get-task-with-params.dto';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @UseGuards(AuthGuard)
+@ApiBearerAuth('access-token')
 @Controller('task')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
@@ -34,10 +34,7 @@ export class TaskController {
   }
 
   @Get('/:id')
-  async getById(@Param('id') id: number): Promise<Task> {
-    if (isNaN(id)) {
-      throw new HttpException('ID must be a number', HttpStatus.BAD_REQUEST);
-    }
+  async getById(@Param('id') id: string): Promise<Task> {
     return this.taskService.getById(id);
   }
 
@@ -48,20 +45,14 @@ export class TaskController {
 
   @Put('/:id')
   async update(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() task: UpdateTaskDto,
   ): Promise<Task> {
-    if (isNaN(id)) {
-      throw new HttpException('ID must be a number', HttpStatus.BAD_REQUEST);
-    }
     return this.taskService.update(id, task);
   }
 
   @Delete('/:id')
-  async delete(@Param('id') id: number): Promise<Task[]> {
-    if (isNaN(id)) {
-      throw new HttpException('ID must be a number', HttpStatus.BAD_REQUEST);
-    }
+  async delete(@Param('id') id: string): Promise<Task[]> {
     return this.taskService.delete(id);
   }
 }

@@ -1,25 +1,4 @@
-import { IsDate, IsEnum, IsString } from 'class-validator';
-import { TaskStatus } from '../entities/task.entity';
-import { Transform } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateTaskDto } from './create-task.dto';
 
-export class UpdateTaskDto {
-  @ApiProperty()
-  @IsString()
-  title: string;
-
-  @ApiProperty()
-  @IsString()
-  description: string;
-
-  @ApiProperty()
-  @IsEnum(TaskStatus, {
-    message: 'Status must be one of DONE 2, IN_PROGRESS 1, NOT_STARTED 0',
-  })
-  status?: TaskStatus;
-
-  @ApiProperty()
-  @Transform(({ value }) => new Date(value))
-  @IsDate()
-  expirationDate: Date;
-}
+export class UpdateTaskDto extends PartialType(CreateTaskDto) {}

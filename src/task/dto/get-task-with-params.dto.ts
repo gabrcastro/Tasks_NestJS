@@ -4,12 +4,12 @@ import { TaskStatus } from '../entities/task.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GetTaskWithParamsDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   title?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
   @IsEnum(TaskStatus, {

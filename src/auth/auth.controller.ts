@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthResponseDto } from './dto/auth-reponse.dto';
 import { SignInDto } from './dto/signin.dto';
@@ -20,6 +10,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('/signin')
   signin(@Body() signInDto: SignInDto): Promise<AuthResponseDto> {
-    return this.authService.signin(signInDto);
+    return this.authService.signIn(signInDto);
   }
 }

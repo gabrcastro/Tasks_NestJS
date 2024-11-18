@@ -10,10 +10,18 @@ async function bootstrap() {
 
   // Configuração do Swagger
   const config = new DocumentBuilder()
-    .setTitle('Task API')
-    .setDescription('API para gerenciar tarefas')
+    .setTitle('Task Managemente API')
+    .setDescription('Task Managemente API')
     .setVersion('1.0')
     .addTag('tasks')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      'access-token',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document); // Acessar o Swagger na rota /api
